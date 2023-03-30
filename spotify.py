@@ -25,7 +25,7 @@ track_uris = [x["track"]["uri"] for x in sp.playlist_tracks(playlist_URI)["items
 random_songs = random.sample(sp.playlist_tracks(playlist_URI)["items"], 10)
 
 
-def random_choices() -> dict[(str, str): tuple[float, float]]:
+def random_choices() -> dict[tuple[str, str]: tuple[float, float]]:
     """Return a list of 10 random song names."""
     # a list for the name of each random song
     song_names = []
@@ -72,7 +72,7 @@ def spotify_runner() -> None:
     print(random_track_names)
 
 
-def csv_reader() -> dict[str: tuple[float, float]]:
+def csv_reader() -> dict[tuple[str, str]: tuple[float, float]]:
     """..."""
     list_of_songs = {}
     with open('Subset_of_song_data.csv') as csv_file:
@@ -86,12 +86,13 @@ def csv_reader() -> dict[str: tuple[float, float]]:
             danceability = (row[4])
             valence = (row[0])
 
-            list_of_songs[title] = (danceability, valence)
+            list_of_songs[(artist, title)] = (danceability, valence)
 
         return list_of_songs
 
 
-def get_similar_songs(dataset_songs: dict[(str, str): tuple[float, float]], user_songs: dict[(str, str): tuple[float, float]]) -> list:
+def get_similar_songs(dataset_songs: dict[tuple[str, str]: tuple[float, float]],
+                      user_songs: dict[tuple[str, str]: tuple[float, float]]) -> list:
     """...
         Preconditions:
             - all([0.0 <= s[2] <= 1.0 for s in dataset_songs])
@@ -101,7 +102,7 @@ def get_similar_songs(dataset_songs: dict[(str, str): tuple[float, float]], user
 
         >>> https://open.spotify.com/playlist/10RDYOInFIIVTUC98kA8qW?si=8d4e3b1907ad4dc6
         >>> user_songs = random_choices()
-        >>> dataset_songs = {'p': (0.5, 0.61)}
+        >>> dataset_songs = {('p', 'l'): (0.5, 0.61)}
         >>> get_similar_songs(dataset_songs, user_songs)
     """
     similar_songs = []
@@ -111,7 +112,7 @@ def get_similar_songs(dataset_songs: dict[(str, str): tuple[float, float]], user
         target_valence = user_songs[u][1]
 
         for song in dataset_songs:
-            song_name = song
+            song_name = song[0]
             danceability = dataset_songs[song][0]
             valence = dataset_songs[song][1]
 
