@@ -18,14 +18,14 @@ This file is Copyright (c) 2023 of Mahek Cheema, Kelsang Tsomo, Olindi Mallika A
 """
 from __future__ import annotations
 from typing import Optional, Any
-import csv
 # from python_ta.contracts import check_contracts
 
 
 ###############################################################################
-# Song, Network and Vertex Classes
+# Song and Playlist Classes
 ###############################################################################
-
+SongID: str
+   
 # @check_contracts
 class Song:
    """A class that represents a song from the user's playlist or from the spotify database.
