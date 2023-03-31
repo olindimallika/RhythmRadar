@@ -14,8 +14,7 @@ copyright for CSC111 project materials, please consult our Course Syllabus.
 This file is Copyright (c) 2023 of Mahek Cheema, Kelsang Tsomo, Olindi Mallika Appuhamilage, and Bea Alyssandra Castro
 """
 from __future__ import annotations
-from typing import Optional, Any
-import csv
+from typing import Optional
 from python_ta.contracts import check_contracts
 
 ###############################################################################
