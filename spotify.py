@@ -66,29 +66,65 @@ def random_choices() -> dict[tuple[str]: tuple[float]]:
         # add to the dictionary
         user_danceability = (sp.audio_features(track_uri)[0]['danceability'])
         user_valence = (sp.audio_features(track_uri)[0]['valence'])
-        user_songs[('Artist: ' + artist, 'Song: ' + song_title)] = \
-            (user_danceability, user_valence)
+        user_loudness = (sp.audio_features(track_uri)[0]['loudness'])
+        user_energy = (sp.audio_features(track_uri)[0]['energy'])
+        user_songs[(artist, song_title)] = \
+            (user_danceability, user_valence, user_loudness, user_energy)
 
     return user_songs
 
 
-def csv_reader() -> dict[tuple[str]: tuple[float]]:
-    """Load song data from the spotify dataset with the required attributes"""
-    # a dictionary mapping a tuple of the song artist to a tuple of the danceability and valence
+# def csv_reader() -> dict[tuple[str]: tuple[float]]:
+#     """Load song data from the spotify dataset with the required attributes"""
+#     # a dictionary mapping a tuple of the song artist to a tuple of the danceability and valence
+#     list_of_songs = {}
+#     with open('Subset_of_song_data.csv') as csv_file:
+#         rr = csv.reader(csv_file)
+#
+#         # skip the row with the names of the features
+#         next(rr)
+#         for row in rr:
+#             artist = row[3]
+#
+#             title = row[14]
+#             danceability = float(row[4])
+#             valence = float(row[0])
+#             loudness = float(row[12])
+#             energy = float(row[6])
+#
+#             list_of_songs[(artist, title)] = (danceability, valence, loudness, energy)
+#
+#         return list_of_songs
+
+def csv_reader() -> dict[tuple[str, str]: tuple[float, float]]:
+    """..."""
     list_of_songs = {}
     with open('Subset_of_song_data.csv') as csv_file:
         rr = csv.reader(csv_file)
 
-        # skip the row with the names of the features
         next(rr)
         for row in rr:
-            artist = row[3]
+            lst = []
+            value = len(row)
+            if value > 19:
+                for i in range(3, (value - (19 - 4))):
+                    lst.extend(list(map(str.strip, row[i].split(','))))
+                artist = lst[0]
+                title = row[(value - 19) + 14]
+                danceability = float(row[(value - (19 - 4))])
+                valence = float(row[0])
+                loudness = float(row[12])
+                energy = float(row[6])
+                list_of_songs[(artist, title)] = (danceability, valence, loudness, energy)
+            else:
+                artist = row[3]
+                title = row[14]
+                danceability = float(row[4])
+                valence = float(row[0])
+                loudness = float(row[12])
+                energy = float(row[6])
 
-            title = row[14]
-            danceability = float(row[4])
-            valence = float(row[0])
-
-            list_of_songs[('Artist: ' + artist, 'Song: ' + title)] = (danceability, valence)
+                list_of_songs[(artist, title)] = (danceability, valence, loudness, energy)
 
         return list_of_songs
 
@@ -114,15 +150,21 @@ def get_similar_songs(dataset_songs: dict[tuple[str]: tuple[float]], user_songs:
     for input_song in user_songs:
         target_danceability = user_songs[input_song][0]
         target_valence = user_songs[input_song][1]
+        target_loudness = user_songs[input_song][2]
+        target_energy = user_songs[input_song][3]
 
         similar_from_dataset = []
 
         for set_song in dataset_songs:
             danceability = dataset_songs[set_song][0]
             valence = dataset_songs[set_song][1]
+            loudness = dataset_songs[set_song][2]
+            energy = dataset_songs[set_song][3]
 
             if (target_danceability - 0.1) <= danceability <= (target_danceability + 0.1) and \
-                    (target_valence - 0.1) <= valence <= (target_valence + 0.1):
+                    (target_valence - 0.1) <= valence <= (target_valence + 0.1) and \
+                    (target_loudness - 6) <= loudness <= (target_loudness + 6) and \
+                    (target_energy - 0.5) <= energy <= (target_energy + 0.5):
                 similar_from_dataset.append(set_song)
 
         similar_songs[input_song] = similar_from_dataset
