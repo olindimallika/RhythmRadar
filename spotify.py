@@ -1,8 +1,6 @@
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-from matplotlib import pyplot as plt
 import random
-from typing import Any
 import csv
 
 # from spotify developer account
@@ -51,27 +49,6 @@ def random_choices() -> dict[tuple[str, str]: tuple[float, float]]:
     return user_songs
 
 
-def spotify_runner() -> None:
-    """Plot the 10 random songs from the input user's playlist."""
-    tup = random_choices(random_songs)
-    random_track_names = tup[0]
-    x = tup[1]
-    y = tup[2]
-
-    plt.scatter(x, y, s=40, c='pink', edgecolor='black', linewidth=1)
-
-    # axis labels
-    plt.xlabel('Danceability')
-    plt.ylabel('Valence')
-
-    # scatter plot title
-    plt.title('Random Songs')
-
-    # shows scatter plot to user and the random songs
-    plt.show()
-    print(random_track_names)
-
-
 def csv_reader() -> dict[tuple[str, str]: tuple[float, float]]:
     """..."""
     list_of_songs = {}
@@ -92,7 +69,7 @@ def csv_reader() -> dict[tuple[str, str]: tuple[float, float]]:
 
 
 def get_similar_songs(dataset_songs: dict[tuple[str, str]: tuple[float, float]],
-                      user_songs: dict[tuple[str, str]: tuple[float, float]]) -> list:
+                      user_songs: dict[tuple[str, str]: tuple[float, float]]) -> dict[tuple[str, str]: tuple[str, str]]:
     """...
         Preconditions:
             - all([0.0 <= s[2] <= 1.0 for s in dataset_songs])
@@ -105,18 +82,17 @@ def get_similar_songs(dataset_songs: dict[tuple[str, str]: tuple[float, float]],
         >>> dataset_songs = {('p', 'l'): (0.5, 0.61)}
         >>> get_similar_songs(dataset_songs, user_songs)
     """
-    similar_songs = []
+    similar_songs = {}
 
-    for u in user_songs:
-        target_danceability = user_songs[u][0]
-        target_valence = user_songs[u][1]
+    for input_song in user_songs:
+        target_danceability = user_songs[input_song][0]
+        target_valence = user_songs[input_song][1]
 
-        for song in dataset_songs:
-            song_name = song[0]
-            danceability = dataset_songs[song][0]
-            valence = dataset_songs[song][1]
+        for set_song in dataset_songs:
+            danceability = dataset_songs[set_song][0]
+            valence = dataset_songs[set_song][1]
 
             if (target_danceability - 0.2) <= danceability <= (target_danceability + 0.2) and \
                     (target_valence - 0.2) <= valence <= (target_valence + 0.2):
-                similar_songs.append(song_name)
+                similar_songs[input_song] = set_song
     return similar_songs
