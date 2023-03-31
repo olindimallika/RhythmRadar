@@ -1,3 +1,19 @@
+"""
+CSC111 Winter 2023 Final Project
+RhythmnRadar: Underground Song Recommendation System
+[Insert Module Description]
+
+Copyright and Usage Information
+===============================
+
+This file is provided solely for the personal and private use of the CSC111 course department
+at the University of Toronto St. George campus. All forms of distribution of this code,
+whether as given or with any changes, are strictly prohibited. For more information on
+copyright for CSC111 project materials, please consult our Course Syllabus.
+
+This file is Copyright (c) 2023 of Mahek Cheema, Kelsang Tsomo, Olindi Mallika Appuhamilage, and Bea Alyssandra Castro
+"""
+
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import random
@@ -23,13 +39,18 @@ track_uris = [x["track"]["uri"] for x in sp.playlist_tracks(playlist_URI)["items
 random_songs = random.sample(sp.playlist_tracks(playlist_URI)["items"], 10)
 
 
-def random_choices() -> dict[tuple[str, str]: tuple[float, float]]:
-    """Return a list of 10 random song names."""
-    # a list for the name of each random song
+def random_choices() -> dict[tuple[str]: tuple[float]]:
+    """Return a list of 10 random song names from the user's input playlist."""
+    # a list for the names of each random song
     song_names = []
+
+    # the genres
     genres = []
+
+    # a dictionary mapping a tuple of the song artist and song title to
     user_songs = {}
 
+    # access the features of each song
     for song in random_songs:
         song_title = song["track"]["name"]
         song_names.append(song_title)
@@ -42,19 +63,23 @@ def random_choices() -> dict[tuple[str, str]: tuple[float, float]]:
         artist_genres = artist_info["genres"]
         genres.append((artist, popularity_score, artist_genres))
 
+        # add to the dictionary
         user_danceability = (sp.audio_features(track_uri)[0]['danceability'])
         user_valence = (sp.audio_features(track_uri)[0]['valence'])
-        user_songs[(artist, song_title)] = (user_danceability, user_valence)
+        user_songs[('Artist: ' + artist, 'Song: ' + song_title)] = \
+            (user_danceability, user_valence)
 
     return user_songs
 
 
-def csv_reader() -> dict[tuple[str, str]: tuple[float, float]]:
-    """..."""
+def csv_reader() -> dict[tuple[str]: tuple[float]]:
+    """Load song data from the spotify dataset with the required attributes"""
+    # a dictionary mapping a tuple of the song artist to a tuple of the danceability and valence
     list_of_songs = {}
     with open('Subset_of_song_data.csv') as csv_file:
         rr = csv.reader(csv_file)
 
+        # skip the row with the names of the features
         next(rr)
         for row in rr:
             artist = row[3]
@@ -63,13 +88,13 @@ def csv_reader() -> dict[tuple[str, str]: tuple[float, float]]:
             danceability = float(row[4])
             valence = float(row[0])
 
-            list_of_songs[(artist, title)] = (danceability, valence)
+            list_of_songs[('Artist: ' + artist, 'Song: ' + title)] = (danceability, valence)
 
         return list_of_songs
 
 
-def get_similar_songs(dataset_songs: dict[tuple[str, str]: tuple[float, float]],
-                user_songs: dict[tuple[str, str]: tuple[float, float]]) -> dict[tuple[str, str]: list[tuple[str, str]]]:
+def get_similar_songs(dataset_songs: dict[tuple[str]: tuple[float]], user_songs: dict[tuple[str]: tuple[float]]) -> \
+        dict[tuple[str]: list[tuple[str]]]:
     """Return a list of the songs from the dataset that have a danceability and valence within a range of 0.2
         Preconditions:
             - all([0.0 <= dataset_songs[d][0] <= 1.0 for d in dataset_songs])
@@ -82,19 +107,24 @@ def get_similar_songs(dataset_songs: dict[tuple[str, str]: tuple[float, float]],
         >>> dataset_songs = csv_reader()
         >>> get_similar_songs(dataset_songs, user_songs)
     """
+    # a dictionary mapping a tuple of the artist and title of a song from the user's playlist to a list of tuples
+    # containing the artist and title of a song that is similar
     similar_songs = {}
 
     for input_song in user_songs:
         target_danceability = user_songs[input_song][0]
         target_valence = user_songs[input_song][1]
 
-        songes = []
+        similar_from_dataset = []
+
         for set_song in dataset_songs:
             danceability = dataset_songs[set_song][0]
             valence = dataset_songs[set_song][1]
 
-            if (target_danceability - 0.2) <= danceability <= (target_danceability + 0.2) and \
-                    (target_valence - 0.2) <= valence <= (target_valence + 0.2):
-                songes.append(set_song)
-        similar_songs[input_song] = songes
+            if (target_danceability - 0.1) <= danceability <= (target_danceability + 0.1) and \
+                    (target_valence - 0.1) <= valence <= (target_valence + 0.1):
+                similar_from_dataset.append(set_song)
+
+        similar_songs[input_song] = similar_from_dataset
+
     return similar_songs
