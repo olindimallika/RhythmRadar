@@ -2,15 +2,12 @@
 CSC111 Winter 2023 Final Project
 RhythmnRadar: Underground Song Recommendation System
 [Insert Module Description]
-
 Copyright and Usage Information
 ===============================
-
 This file is provided solely for the personal and private use of the CSC111 course department
 at the University of Toronto St. George campus. All forms of distribution of this code,
 whether as given or with any changes, are strictly prohibited. For more information on
 copyright for CSC111 project materials, please consult our Course Syllabus.
-
 This file is Copyright (c) 2023 of Mahek Cheema, Kelsang Tsomo, Olindi Mallika Appuhamilage, and Bea Alyssandra Castro
 """
 
@@ -73,33 +70,10 @@ def random_choices() -> dict[tuple[str]: tuple[float]]:
 
     return user_songs
 
-
-# def csv_reader() -> dict[tuple[str]: tuple[float]]:
-#     """Load song data from the spotify dataset with the required attributes"""
-#     # a dictionary mapping a tuple of the song artist to a tuple of the danceability and valence
-#     list_of_songs = {}
-#     with open('Subset_of_song_data.csv') as csv_file:
-#         rr = csv.reader(csv_file)
-#
-#         # skip the row with the names of the features
-#         next(rr)
-#         for row in rr:
-#             artist = row[3]
-#
-#             title = row[14]
-#             danceability = float(row[4])
-#             valence = float(row[0])
-#             loudness = float(row[12])
-#             energy = float(row[6])
-#
-#             list_of_songs[(artist, title)] = (danceability, valence, loudness, energy)
-#
-#         return list_of_songs
-
 def csv_reader() -> dict[tuple[str, str]: tuple[float, float]]:
     """..."""
     list_of_songs = {}
-    with open('Subset_of_song_data.csv') as csv_file:
+    with open('bigger_subset.csv') as csv_file:
         rr = csv.reader(csv_file)
 
         next(rr)
@@ -113,8 +87,8 @@ def csv_reader() -> dict[tuple[str, str]: tuple[float, float]]:
                 title = row[(value - 19) + 14]
                 danceability = float(row[(value - (19 - 4))])
                 valence = float(row[0])
-                loudness = float(row[12])
-                energy = float(row[6])
+                loudness = float((value - 19) + 12)
+                energy = float((value - 19) + 6)
                 list_of_songs[(artist, title)] = (danceability, valence, loudness, energy)
             else:
                 artist = row[3]
@@ -137,7 +111,6 @@ def get_similar_songs(dataset_songs: dict[tuple[str]: tuple[float]], user_songs:
             - all([0.0 <= dataset_songs[d][1] <= 1.0 for d in dataset_songs])
             - all([0.0 <= user_songs[u][0] <= 1.0 for u in user_songs])
             - all([0.0 <= user_songs[u][1] <= 1.0 for u in user_songs])
-
         >>> https://open.spotify.com/playlist/10RDYOInFIIVTUC98kA8qW?si=8d4e3b1907ad4dc6
         >>> user_songs = random_choices()
         >>> dataset_songs = csv_reader()
