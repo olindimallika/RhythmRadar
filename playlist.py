@@ -41,10 +41,6 @@ class Song:
        Numerical scale from 0.0 to 1.0 defining the musical positivity that a recording conveys. Tracks with a high
        valence sound happier, cheerier, and more uplifting, whereas tracks with a low valence sound
        more depressing. (e.g. sad, depressed, angry).
-   - acousticness:
-       Whether the recording is acoustic is indicated by a confidence value ranging from 0.0 to 1.0.
-       Songs with a greater degree of acousticness are more likely to feature acoustic and non-electrical instruments.
-       On a range of 0,0 (not acoustic) to 1.0, acousticalness is rated (very acoustic).
    - danceability:
        Based on a combination of musical elements, including tempo, rhythm stability, beat strength,
        and overall regularity, danceability quantifies how appropriate the song is for dancing. The least danceable
@@ -54,10 +50,6 @@ class Song:
        feels quick, energetic, and noisy. For instance, a Bach prelude rates poorly on the energy metre compared
        to death metal. This characteristic is influenced by perceptual elements like dynamic range, perceived
        loudness, timbre, onset rate, and general entropy.
-   - instrumentalness:
-       Determines whether the track is vocal-free. The chance that a track is vocal-free increases as the
-       instrumentalness value approaches 1.0. The intent is for values above 0.5 to indicate instrumental tracks,
-       but confidence increases as the value gets closer to 1.0.
    - loudness:
        A track's overall volume in dB (dB). In order to compare the relative loudness of tracks, loudness
        values are averaged over the full clip. Typical values lie between -60 and 0 db.
@@ -65,15 +57,6 @@ class Song:
        A track's popularity is measured on a scale of 0 to 100, with 100 representing the most recognition.
        The popularity is determined by an algorithm and primarily depends on how recently and how many times
        the music has been played overall.
-   - speechiness:
-       Determines if a track contains spoken speech. The attribute value will be closer to 1.0 the more purely
-       speech-like the recording is (such as a talk show, audiobook, or piece of poetry). Tracks that are most
-       likely made completely of spoken words have values above 0.66. Tracks that may include both music and speech,
-       either in parts or layered, are described by values between 0.33 and 0.66, including situations like rap music.
-       Values less than 0.33 most likely refer to recordings that are not speech-like, like music.
-   - tempo:
-       A track's approximated average tempo, expressed in beats per minute (BPM). Tempo, which in musical terms
-       refers to a piece's speed or tempo, is closely related to the length of an average beat.
    - genre:
        The category (genre) of the song, which is characterized by similarities in composition. A song can have
        multiple genres, and is represented as a list of strings. If not yet classified, the genre is none.
