@@ -72,10 +72,10 @@ def get_similar_songs(dataset_songs: dict[tuple[str, str]: tuple[float, float]],
                       user_songs: dict[tuple[str, str]: tuple[float, float]]) -> dict[tuple[str, str]: tuple[str, str]]:
     """...
         Preconditions:
-            - all([0.0 <= s[2] <= 1.0 for s in dataset_songs])
-            - all([0.0 <= s[3] <= 1.0 for s in dataset_songs])
-            - all([0.0 <= u[1] <= 1.0 for u in users_songs])
-            - all([0.0 <= u[2] <= 1.0 for u in user_songs])
+            - all([0.0 <= dataset_songs[d][0] <= 1.0 for d in dataset_songs])
+            - all([0.0 <= dataset_songs[d][1] <= 1.0 for d in dataset_songs])
+            - all([0.0 <= user_songs[u][0] <= 1.0 for u in user_songs])
+            - all([0.0 <= user_songs[u][1] <= 1.0 for u in user_songs])
 
         >>> https://open.spotify.com/playlist/10RDYOInFIIVTUC98kA8qW?si=8d4e3b1907ad4dc6
         >>> user_songs = random_choices()
