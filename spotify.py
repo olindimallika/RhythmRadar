@@ -60,8 +60,8 @@ def csv_reader() -> dict[tuple[str, str]: tuple[float, float]]:
             artist = row[3]
 
             title = row[14]
-            danceability = (row[4])
-            valence = (row[0])
+            danceability = float(row[4])
+            valence = float(row[0])
 
             list_of_songs[(artist, title)] = (danceability, valence)
 
@@ -69,8 +69,8 @@ def csv_reader() -> dict[tuple[str, str]: tuple[float, float]]:
 
 
 def get_similar_songs(dataset_songs: dict[tuple[str, str]: tuple[float, float]],
-                      user_songs: dict[tuple[str, str]: tuple[float, float]]) -> dict[tuple[str, str]: tuple[str, str]]:
-    """...
+                user_songs: dict[tuple[str, str]: tuple[float, float]]) -> dict[tuple[str, str]: list[tuple[str, str]]]:
+    """Return a list of the songs from the dataset that have a danceability and valence within a range of 0.2
         Preconditions:
             - all([0.0 <= dataset_songs[d][0] <= 1.0 for d in dataset_songs])
             - all([0.0 <= dataset_songs[d][1] <= 1.0 for d in dataset_songs])
@@ -79,7 +79,7 @@ def get_similar_songs(dataset_songs: dict[tuple[str, str]: tuple[float, float]],
 
         >>> https://open.spotify.com/playlist/10RDYOInFIIVTUC98kA8qW?si=8d4e3b1907ad4dc6
         >>> user_songs = random_choices()
-        >>> dataset_songs = {('p', 'l'): (0.5, 0.61)}
+        >>> dataset_songs = csv_reader()
         >>> get_similar_songs(dataset_songs, user_songs)
     """
     similar_songs = {}
@@ -88,11 +88,13 @@ def get_similar_songs(dataset_songs: dict[tuple[str, str]: tuple[float, float]],
         target_danceability = user_songs[input_song][0]
         target_valence = user_songs[input_song][1]
 
+        songes = []
         for set_song in dataset_songs:
             danceability = dataset_songs[set_song][0]
             valence = dataset_songs[set_song][1]
 
             if (target_danceability - 0.2) <= danceability <= (target_danceability + 0.2) and \
                     (target_valence - 0.2) <= valence <= (target_valence + 0.2):
-                similar_songs[input_song] = set_song
+                songes.append(set_song)
+        similar_songs[input_song] = songes
     return similar_songs
