@@ -129,7 +129,7 @@ class Song:
 
 
 # @check_contracts
-class Channel:
+class Channel():
     """A link (or "edge") connecting two songs in an interconnection network.
 
     Instance Attributes:
@@ -234,7 +234,7 @@ class Playlist:
 
         return similarities_so_far
 
-    def get_song_addresses(self) -> set[SongID]:
+    def get_song_ids(self) -> set[SongID]:
         """Return a set containing all the song ids in the playlist or dataset.~"""
         return set(self._songs.keys())  # Note: calling dict.keys is technically unnecessary, but added for clarity
 
@@ -321,13 +321,13 @@ class Playlist:
         return list_of_songs
 
     def get_playlist_songs(self) -> list[SongID]:
-        """Return a list of 10 random song ids from the user's input playlist~.
+        """Return a list of 30 random song ids from the user's input playlist~.
         """
         # a dictionary mapping a tuple of the song artist and song title to
         user_songs = []
 
-        # take a sample of 10 random songs
-        random_songs = random.sample(sp.playlist_tracks(playlist_URI)["items"], 10)
+        # take a sample of 30 random songs
+        random_songs = random.sample(sp.playlist_tracks(playlist_URI)["items"], 30)
 
         # access the features of each song
         for s in random_songs:
@@ -380,14 +380,11 @@ class Playlist:
         >>> p.get_songs_in_range(user_songs, dataset_songs)
         >>> p.playlist_to_dict()
         """
-
         for input_song in user_songs:
             target_danceability = self._songs[input_song].danceability
             target_valence = self._songs[input_song].valence
             target_energy = self._songs[input_song].energy
             target_loudness = self._songs[input_song].loudness
-
-            # similar_from_dataset = []
 
             for set_song in dataset_songs:
                 danceability = self._songs[set_song].danceability
@@ -399,6 +396,7 @@ class Playlist:
                         (target_valence - 0.5) <= valence <= (target_valence + 0.5) and \
                         (target_energy - 0.8) <= energy <= (target_energy + 0.8) and \
                         (target_loudness - 5) <= loudness <= (target_loudness + 5):
+
                     while input_song == set_song:
                         song_index = user_songs.index(input_song)
                         input_song = random.choice(sp.playlist_tracks(playlist_URI)["items"])
@@ -420,130 +418,8 @@ class Playlist:
                         new_song = self.add_song(SongID, song_title, artist, user_valence, user_danceability,
                         user_energy, user_loudness, popularity_score, artist_genres)
                         user_songs[song_index] = new_song.song_id
-                        # similar_from_dataset.append(set_song)
-                        # if similar_from_dataset == []:
 
                     self.add_channel(input_song, set_song)
-                else:
-                    song_index = user_songs.index(input_song)
-                    input_song = random.choice(sp.playlist_tracks(playlist_URI)["items"])
-                    song_title = input_song['track']['name']
-                    track_uri = input_song['track']['uri']
-                    SongID = input_song['track']['id']
-
-                    artist_uri = input_song['track']['artists'][0]['uri']
-                    artist_info = sp.artist(artist_uri)
-                    popularity_score = artist_info['popularity']
-                    artist = input_song['track']['artists'][0]['name']
-                    artist_genres = artist_info["genres"]
-
-                    user_danceability = (sp.audio_features(track_uri)[0]['danceability'])
-                    user_valence = (sp.audio_features(track_uri)[0]['valence'])
-                    user_energy = (sp.audio_features(track_uri)[0]['energy'])
-                    user_loudness = (sp.audio_features(track_uri)[0]['loudness'])
-
-                    new_song = self.add_song(SongID, song_title, artist, user_valence, user_danceability,
-                                             user_energy, user_loudness, popularity_score, artist_genres)
-                    user_songs[song_index] = new_song.song_id
-
-                    while input_song == set_song:
-                        song_index = user_songs.index(input_song)
-                        input_song = random.choice(sp.playlist_tracks(playlist_URI)["items"])
-                        song_title = input_song['track']['name']
-                        track_uri = input_song['track']['uri']
-                        SongID = input_song['track']['id']
-
-                        artist_uri = input_song['track']['artists'][0]['uri']
-                        artist_info = sp.artist(artist_uri)
-                        popularity_score = artist_info['popularity']
-                        artist = input_song['track']['artists'][0]['name']
-                        artist_genres = artist_info["genres"]
-
-                        user_danceability = (sp.audio_features(track_uri)[0]['danceability'])
-                        user_valence = (sp.audio_features(track_uri)[0]['valence'])
-                        user_energy = (sp.audio_features(track_uri)[0]['energy'])
-                        user_loudness = (sp.audio_features(track_uri)[0]['loudness'])
-
-                        new_song = self.add_song(SongID, song_title, artist, user_valence, user_danceability,
-                                                 user_energy, user_loudness, popularity_score, artist_genres)
-                        user_songs[song_index] = new_song.song_id
-                        # similar_from_dataset.append(set_song)
-                        # if similar_from_dataset == []:
-
-                    self.add_channel(input_song, set_song)
-
-                    # new_song = self.add_song(SongID, song_title, artist, user_valence, user_danceability,
-                    #                          user_energy, user_loudness, popularity_score, artist_genres)
-
-
-        #  for input_song in user_songs:
-        #             target_danceability = self._songs[input_song].danceability
-        #             target_valence = self._songs[input_song].valence
-        #             target_energy = self._songs[input_song].energy
-        #             target_loudness = self._songs[input_song].loudness
-        #
-        #             for set_song in dataset_songs:
-        #                 danceability = self._songs[set_song].danceability
-        #                 valence = self._songs[set_song].valence
-        #                 energy = self._songs[set_song].energy
-        #                 loudness = self._songs[set_song].loudness
-        #
-        #                 if (target_danceability - 0.1) <= danceability <= (target_danceability + 0.1) and \
-        #                         (target_valence - 0.1) <= valence <= (target_valence + 0.1) and \
-        #                         (target_energy - 0.5) <= energy <= (target_energy + 0.5) and \
-        #                         (target_loudness - 2) <= loudness <= (target_loudness + 2):
-        #                     while input_song == set_song:
-        #                         song_index = user_songs.index(input_song)
-        #                         random_song = random.choice(sp.playlist_tracks(playlist_URI)["items"])
-        #                         song_title = random_song['track']['name']
-        #                         track_uri = random_song['track']['uri']
-        #                         SongID = random_song['track']['id']
-        #
-        #                         artist_uri = random_song['track']['artists'][0]['uri']
-        #                         artist_info = sp.artist(artist_uri)
-        #                         popularity_score = artist_info['popularity']
-        #                         artist = random_song['track']['artists'][0]['name']
-        #                         artist_genres = artist_info["genres"]
-        #
-        #                         user_danceability = (sp.audio_features(track_uri)[0]['danceability'])
-        #                         user_valence = (sp.audio_features(track_uri)[0]['valence'])
-        #                         user_energy = (sp.audio_features(track_uri)[0]['energy'])
-        #                         user_loudness = (sp.audio_features(track_uri)[0]['loudness'])
-        #
-        #                         new_song = self.add_song(SongID, song_title, artist, user_valence, user_danceability,
-        #                                                  user_energy,
-        #                                                  user_loudness, popularity_score, artist_genres)
-        #                         user_songs[song_index] = new_song.song_id
-        #
-        #                     self.add_channel(input_song, set_song)
-        #
-        #                 # else: # pick another random song, replace old one
-        #                 #     anotherrandom = random.choice(sp.playlist_tracks(playlist_URI)["items"])
-        #                 #     if anotherrandom in
-        #                 #
-        #                 else:
-        #                     song_index = user_songs.index(input_song)
-        #                     random_song = random.choice(sp.playlist_tracks(playlist_URI)["items"])
-        #                     song_title = random_song['track']['name']
-        #                     track_uri = random_song['track']['uri']
-        #                     SongID = random_song['track']['id']
-        #
-        #                     artist_uri = random_song['track']['artists'][0]['uri']
-        #                     artist_info = sp.artist(artist_uri)
-        #                     popularity_score = artist_info['popularity']
-        #                     artist = random_song['track']['artists'][0]['name']
-        #                     artist_genres = artist_info["genres"]
-        #
-        #                     user_danceability = (sp.audio_features(track_uri)[0]['danceability'])
-        #                     user_valence = (sp.audio_features(track_uri)[0]['valence'])
-        #                     user_energy = (sp.audio_features(track_uri)[0]['energy'])
-        #                     user_loudness = (sp.audio_features(track_uri)[0]['loudness'])
-        #
-        #                     new_song = self.add_song(SongID, song_title, artist, user_valence, user_danceability, user_energy,
-        #                                              user_loudness, popularity_score, artist_genres)
-        #                     user_songs[song_index] = new_song.song_id
-        #                     self.get_songs_in_range(user_songs, dataset_songs)
-
 
     @property
     def songs(self):
