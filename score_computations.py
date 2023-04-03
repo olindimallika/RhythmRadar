@@ -50,9 +50,8 @@ class Computations(plist.Playlist):
         return total_songs
 
     def similar_song_helper(self, user_id: str, total_songs: dict[str: list[tuple[str, plist.Channel]]]) \
-            -> tuple[list[str], list[float]]:
+            -> list[tuple[str, float]]:
         """Append the minimum distances to lst_so_far and then append the end_point ids to end_point_ids."""
-        other_ids = []
         distance_lst = []
 
         for channel_tuple in total_songs[user_id]:
@@ -60,16 +59,15 @@ class Computations(plist.Playlist):
             channel = channel_tuple[1]
             user_song = self._songs[user_id]
 
-            if channel_id != user_id:
-                end_point = channel.get_other_endpoint(user_song)
-                other_ids.append(channel_id)
-                distance = self.euclidean_distance(user_song.valence, end_point.valence,
-                                                   user_song.danceability, end_point.danceability)
+            end_point = channel.get_other_endpoint(user_song)
+            distance = self.euclidean_distance(user_song.valence, end_point.valence,
+                                               user_song.danceability, end_point.danceability)
 
-                next_distance = self.euclidean_distance(user_song.energy, end_point.energy,
-                                                        user_song.loudness, end_point.loudness)
-                distance_lst.append(distance + next_distance)
-        return other_ids, distance_lst
+            next_distance = self.euclidean_distance(user_song.energy, end_point.energy,
+                                                    user_song.loudness, end_point.loudness)
+            total_distance = distance + next_distance
+            distance_lst.append((channel_id, total_distance))
+        return distance_lst
 
     def compute_similar_song(self, total_songs: dict[str: list[tuple[str, plist.Channel]]]) -> \
             dict[str: list[tuple[str, float]]]:
@@ -88,14 +86,8 @@ class Computations(plist.Playlist):
         """
         dict_so_far = {}
         for s in total_songs:
-            user_song_info = self.similar_song_helper(s, total_songs)
-
-            endpoint_ids = user_song_info[0]
-            distances = user_song_info[1]
-
-            channel_distances = [(other_id, distance) for other_id in endpoint_ids for distance in distances]
-            dict_so_far[s] = channel_distances
-
+            user_song_lst = self.similar_song_helper(s, total_songs)
+            dict_so_far[s] = user_song_lst
         return dict_so_far
 
     def euclidean_distance(self, x1: float, y1: float, x2: float, y2: float) -> float:
@@ -160,14 +152,14 @@ class Computations(plist.Playlist):
         recommend_song.append(sorted_songs[0])
         return recommend_song
 
-            # lst = [k for k in similar_songs[i] if self._songs[k[0]].genres in check1]
-            # num_so_far = []
-            # for num in lst:
-            #     num_so_far.append(num[1])
-            #
-            # num_so_far = sorted(num_so_far)
-            # final = [value for value in j[0] if j[1] == num_so_far[0]]
-            # recommend_song.append(final[0])
+        # lst = [k for k in similar_songs[i] if self._songs[k[0]].genres in check1]
+        # num_so_far = []
+        # for num in lst:
+        #     num_so_far.append(num[1])
+        #
+        # num_so_far = sorted(num_so_far)
+        # final = [value for value in j[0] if j[1] == num_so_far[0]]
+        # recommend_song.append(final[0])
 
         # for i in total_songs.keys():
         #     self._songs[i].genres
