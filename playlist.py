@@ -129,7 +129,7 @@ class Song:
 
 
 # @check_contracts
-class Channel():
+class Channel:
     """A link (or "edge") connecting two songs in an interconnection network.
 
     Instance Attributes:
@@ -239,7 +239,7 @@ class Playlist:
         return set(self._songs.keys())  # Note: calling dict.keys is technically unnecessary, but added for clarity
 
     def get_dataset_songs(self) -> list[SongID]:
-        """Load all of the song data from the CSV file.
+        """Load all the song data from the CSV file.
 
         This method will return a dictionary with a tuple of strings mapped to a tuple of floats for each song.
         The tuple of strings will contain the song id, the artist name, and the title of the song respectively.
@@ -322,12 +322,14 @@ class Playlist:
 
     def get_playlist_songs(self) -> list[SongID]:
         """Return a list of 30 random song ids from the user's input playlist~.
+
+        # add a precondition ?
         """
         # a dictionary mapping a tuple of the song artist and song title to
         user_songs = []
 
         # take a sample of 30 random songs
-        random_songs = random.sample(sp.playlist_tracks(playlist_URI)["items"], 30)
+        random_songs = random.sample(sp.playlist_tracks(playlist_URI)["items"], 10)
 
         # access the features of each song
         for s in random_songs:
@@ -400,6 +402,10 @@ class Playlist:
                     while input_song == set_song:
                         song_index = user_songs.index(input_song)
                         input_song = random.choice(sp.playlist_tracks(playlist_URI)["items"])
+
+                        while input_song in user_songs:
+                            input_song = random.choice(sp.playlist_tracks(playlist_URI)["items"])
+
                         song_title = input_song['track']['name']
                         track_uri = input_song['track']['uri']
                         SongID = input_song['track']['id']
@@ -416,9 +422,9 @@ class Playlist:
                         user_loudness = (sp.audio_features(track_uri)[0]['loudness'])
 
                         new_song = self.add_song(SongID, song_title, artist, user_valence, user_danceability,
-                        user_energy, user_loudness, popularity_score, artist_genres)
-                        user_songs[song_index] = new_song.song_id
+                                                 user_energy, user_loudness, popularity_score, artist_genres)
 
+                        user_songs[song_index] = new_song.song_id
                     self.add_channel(input_song, set_song)
 
     @property
