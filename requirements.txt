@@ -1,0 +1,12 @@
+# CSC110 Fall 2022: Python libraries we'll be using this semester.
+
+# Testing and code checking
+hypothesis>=6.46,<7
+pytest>=7.1,<7.2
+python-ta>=2.2
+
+# Graphics and data visualization
+plotly>=5.8,<5.9
+pygame>=2.1.2,<2.2
+pillow>=9.1,<9.2
+pandas
