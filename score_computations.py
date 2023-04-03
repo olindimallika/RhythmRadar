@@ -1,6 +1,6 @@
 """
 CSC111 Winter 2023 Final Project
-RhythmnRadar: Underground Song Recommendation System
+RhythmRadar: Underground Song Recommendation System
 [Insert Module Description]
 
 Copyright and Usage Information
@@ -13,60 +13,88 @@ copyright for CSC111 project materials, please consult our Course Syllabus.
 
 This file is Copyright (c) 2023 of Mahek Cheema, Kelsang Tsomo, Olindi Mallika Appuhamilage, and Bea Alyssandra Castro
 """
-import csv
+import math
+import playlist as plist
+import pyperclip
+
+import random
 from typing import Any, Union
+import csv
+
 
 # from good_reads.a3_part2_recommendations import _WeightedVertex
-from playlist import Playlist as PList
-from playlist import Song as s
-import math
-import random
 
 
-class Computations(PList):
+class Computations(plist.Playlist):
     """"..."""
 
     def __init__(self) -> None:
         """Initialize this playlist."""
         super().__init__()
 
-    def computing(self, user_songs: list[str]) -> dict[str: float]:
+    def remove_out_of_range(self, user_songs: list[str]) -> dict[str: list[tuple[str, plist.Channel]]]:
+        """Remove the songs that do not have any channels.
+
+        A song without channels means there were either no songs from the dataset that were within the user's songs'
+        danceability, valence, energy, and loudness or the similar song found from the dataset is the same song from
+        the user's playlist.
         """
-        *** user_songs and dataset_songs are lists of song ids ***
+        total_songs = {}
 
-        1. to access the song object, use Playlist._songs[SongID]
-        2. then get its channels by using .channels
-        3. use the get_other_endpoint method to get the song that is from the dataset
+        for u in user_songs:
+            channels = []
+            for c in self._songs[u].channels:
+                channel = self._songs[u].channels[c]
+                channels.append((c, channel))
+            total_songs[u] = channels
+        return total_songs
 
+    def similar_song_helper(self, user_id: str, total_songs: dict[str: list[tuple[str, plist.Channel]]]) \
+            -> tuple[list[str], list[float]]:
+        """Append the minimum distances to lst_so_far and then append the end_point ids to end_point_ids."""
+        other_ids = []
+        distance_lst = []
+
+        for channel_tuple in total_songs[user_id]:
+            channel_id = channel_tuple[0]
+            channel = channel_tuple[1]
+            user_song = self._songs[user_id]
+
+            if channel_id != user_id:
+                end_point = channel.get_other_endpoint(user_song)
+                other_ids.append(channel_id)
+                distance = self.euclidean_distance(user_song.valence, end_point.valence,
+                                                   user_song.danceability, end_point.danceability)
+
+                next_distance = self.euclidean_distance(user_song.energy, end_point.energy,
+                                                        user_song.loudness, end_point.loudness)
+                distance_lst.append(distance + next_distance)
+        return other_ids, distance_lst
+
+    def compute_similar_song(self, total_songs: dict[str: list[tuple[str, plist.Channel]]]) -> \
+            dict[str: list[tuple[str, float]]]:
+        """Return the dictionary mapping the song id of a song from the user's playlist to a tuple containing
+        the song id of a similar song from the dataset to the
+
+        >>> # https://open.spotify.com/playlist/10RDYOInFIIVTUC98kA8qW?si=8d4e3b1907ad4dc6
         >>> c = Computations()
-        >>> user_songs = c.get_playlist_songs()
+        >>> us = c.get_playlist_songs()
         >>> dataset_songs = c.get_dataset_songs()
-        >>> c.get_songs_in_range(user_songs, dataset_songs)
-        >>> c.computing(user_songs)
+        >>> c.get_songs_in_range(us, dataset_songs)
+        >>> ts = c.remove_out_of_range(us)
+        >>> hi = c.compute_similar_song(ts)
+        >>> import pprint
+        >>> pprint.pprint(hi)
         """
         dict_so_far = {}
-        for i in user_songs:
-            lst_so_far = []
-            total_songs = {song_id: self._songs[i].channels[song_id] for song_id in self._songs[i].channels
-            if self._songs[i].channels != {}}
-            print(total_songs)
-            print({s:total_songs[s] for s in total_songs})
+        for s in total_songs:
+            user_song_info = self.similar_song_helper(s, total_songs)
 
-            # for channel in self._songs[i].channels:
-            #     end_point = (total_songs[i].channels[channel]).get_other_endpoint(total_songs[i])
-            #     distance = self.euclidean_distance(total_songs[i].valence, end_point.valence,
-            #                                        total_songs[i].danceability, end_point.danceability)
-            #
-            #     next_distance = self.euclidean_distance(total_songs[i].energy, end_point.energy,
-            #                                             total_songs[i].loudness, end_point.loudness)
-            #     lst_so_far.append(distance + next_distance)
-            # print(lst_so_far)
+            endpoint_ids = user_song_info[0]
+            distances = user_song_info[1]
 
-            # get i.valence and i.danceability and i.
-            # somehow get the distance between v and dance and then distance between energy and loudness
-            # take the min out of all the values and then order them from smallest to largest
-            # and return in that order
-            # for all the songs
+            channel_distances = [(other_id, distance) for other_id in endpoint_ids for distance in distances]
+            dict_so_far[s] = channel_distances
 
         return dict_so_far
 
@@ -80,38 +108,86 @@ class Computations(PList):
         :param y2:
         :return:
         """
-        # #d = 2√(a2 + b2)
-        # distance = 0.0
         return math.sqrt(((x1 - x2) ** 2) + ((y1 - y2) ** 2))
 
     def rec(self) -> Any:
         """
-        # in pygame, if user clicks thumbs up button, keep song
-        # if user clicks thumbs down button, go to their list of similar_songs and reccomend the next song
+
         """
         user_songs = self.get_playlist_songs()
         dataset_songs = self.get_dataset_songs()
 
-        # call the method that sorts the songs from the datasets based on how similar they are.
+        # call the method that sorts the songs from the datasets based on how simizlar they are.
         # gets the list of liked and disliked songs from the user
         # have an empty potential song list
         # go through all the songs that are similar and if they weren't liked or disliked add them to potentials songs
         #
 
     def sort_similar_songs(self) -> Any:
-        user_songs = self.get_dataset_songs()
-
-        similar_songs = self.computing(user_songs)
+        """..."""
+        recommend_song = []
         songs_so_far = []
-        reccomend_song = []
+        user_songs = self.get_playlist_songs()
+        dataset_songs = self.get_dataset_songs()
+        self.get_songs_in_range(user_songs, dataset_songs)
+        total_songs = self.remove_out_of_range(user_songs)
+        similar_songs = self.compute_similar_song(total_songs)
+
+        lst_so_far = []
         for i in similar_songs.keys():
-            value = similar_songs[i].values
-            num = value[1]
-            songs_so_far.append(num)
-            sorted_songs = sorted(songs_so_far)
-            minimum = sorted_songs[0]
-            chosen_song = [song[0] for song in similar_songs if song[1] == minimum]
-            reccomend_song.append(chosen_song[0])
+
+            for j in similar_songs[i]:
+                user_genre = self._songs[i].genres
+                data_genre = self._songs[j[0]].genres
+
+                check1 = [i for i in data_genre if i in user_genre]
+                if len(check1) > 0:
+                    lst = [k for k in similar_songs[i] if self._songs[k[0]].genres in check1]
+
+                    num_so_far = []
+                    for num in lst:
+                        num_so_far.append(num[1])
+
+                    num_so_far = sorted(num_so_far)
+                    final = [value for value in j[0] if j[1] == num_so_far[0]]
+                    recommend_song.append(final[0])
+
+                else:
+                    num = j[1]
+                    songs_so_far.append(num)
+        sorted_songs = sorted(songs_so_far)
+        # chosen_song = [song[0] for song in similar_songs.values() if song[1] == sorted_songs[]]
+        recommend_song.append(sorted_songs[0])
+        return recommend_song
+
+            # lst = [k for k in similar_songs[i] if self._songs[k[0]].genres in check1]
+            # num_so_far = []
+            # for num in lst:
+            #     num_so_far.append(num[1])
+            #
+            # num_so_far = sorted(num_so_far)
+            # final = [value for value in j[0] if j[1] == num_so_far[0]]
+            # recommend_song.append(final[0])
+
+        # for i in total_songs.keys():
+        #     self._songs[i].genres
+        #     similar_songs = self.compute_similar_song(total_songs)
+        #     value = [song[1] for song in similar_songs[i]]
+        #     recommend_song.append(value[0])
+        # return recommend_song
+        # songs_so_far = []
+        # reccomend_song = []
+        # minimum = 0.0
+        # for i in similar_songs.keys():
+        #     for j in similar_songs.values():
+        #         minimum = j[1]
+        #         # songs_so_far.append(num)
+        #     # sorted_songs = sorted(songs_so_far)
+        #     # minimum = num
+        #     chosen_song = [song[0] for song in similar_songs.values() if song[1] == minimum]
+        #     reccomend_song.append(chosen_song[0])
+        # return reccomend_song
+
 
 # Create a dictionary of songs and their corresponding genres
 songs = {
@@ -137,12 +213,13 @@ users = {
 
 # Function to recommend a song to a user based on their likes and dislikes
 def recommend_song(user):
+    """..."""
     # Get the user's liked and disliked songs
     liked_songs = users[user]["Liked"]
     disliked_songs = users[user]["Disliked"]
 
     # Create a list of potential songs to recommend
-    potential_songs = []    # the reamining songs from score_computations, ordered from lowest to highest different
+    potential_songs = []  # the reamining songs from score_computations, ordered from lowest to highest different
     for song in songs:
         if song not in liked_songs and song not in disliked_songs:
             potential_songs.append(song)
@@ -170,3 +247,13 @@ def recommend_song(user):
 # Test the function with User 1 and User 2
 print(recommend_song("User 1"))
 print(recommend_song("User 2"))
+
+# if __name__ == '__main__':
+#     import python_ta
+#
+#     python_ta.check_all(config={
+#         'extra-imports': ['math', 'playlist'],  # the names (strs) of imported modules
+#         'disable': ['too-many-branches'],
+#         'allowed-io': [],  # the names (strs) of functions that call
+#         'max-line-length': 120
+#     })
